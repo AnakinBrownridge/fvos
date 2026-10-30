@@ -1,0 +1,5 @@
+  out/
+  *.img
+  *.bin
+  *.ppm
+  qemu.log

@@ -1,0 +1,20 @@
+cat > .github/workflows/ci.yml <<'FVOS_EOF'
+name: ci
+on: [push, pull_request]
+permissions: { contents: read }
+jobs:
+  build-and-boot:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      # Relative paths only: the checkout is the working directory.
+      # Web uploads drop the executable bit, so set it explicitly.
+      - run: chmod +x tools/*.sh tests/*.sh
+      - run: sudo apt-get update && sudo apt-get install -y fasm qemu-system-x86
+      - run: tools/check-spdx.sh
+      - run: tools/build.sh
+      - run: sha256sum out/os.img
+      - run: tests/smoke.sh
+      - uses: actions/upload-artifact@v4
+        with: { name: os.img, path: out/os.img }
+FVOS_EOF
